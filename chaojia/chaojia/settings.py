@@ -19,7 +19,10 @@ DATABASES = {
         'PORT': '',                      # Set to empty string for default. Not used with sqlite3.
     }
 }
-
+import os
+STATIC_PATH = os.path.join(os.path.dirname(__file__))
+PROJECT_PATH = os.path.realpath(os.path.dirname(__file__)).split("/")[:-1]
+PROJECT_PATH = "/".join(PROJECT_PATH)
 # Local time zone for this installation. Choices can be found here:
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
 # although not all choices may be available on all operating systems.
@@ -87,7 +90,7 @@ SECRET_KEY = '2%duregu$dzd02n$++9b4jo2*c!pmf0z&amp;1llgv4bp&amp;*ry(vayc'
 TEMPLATE_LOADERS = (
     'django.template.loaders.filesystem.Loader',
     'django.template.loaders.app_directories.Loader',
-#     'django.template.loaders.eggs.Loader',
+#    'django.template.loaders.eggs.Loader',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -101,7 +104,6 @@ MIDDLEWARE_CLASSES = (
 )
 
 ROOT_URLCONF = 'chaojia.urls'
-
 # Python dotted path to the WSGI application used by Django's runserver.
 WSGI_APPLICATION = 'chaojia.wsgi.application'
 
@@ -109,6 +111,8 @@ TEMPLATE_DIRS = (
     # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
+    os.path.join(PROJECT_PATH, 'weibo', 'templates'), 
+    os.path.join(PROJECT_PATH, 'chaojia', 'templates'), 
 )
 
 INSTALLED_APPS = (
