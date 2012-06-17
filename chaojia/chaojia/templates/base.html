@@ -37,7 +37,7 @@
                 <ul>
                     <li>
                         <a href="javascript:;" class="check-in">每天签到</a>
-                        <p>(今天可以领取20分，加油哦）</p>
+                        <p>(今天可以领取20分，加油哦)</p>
                     </li>
                     <li>
                         <a href="javascript:;" class="get-score">赚积分</a>
@@ -52,15 +52,16 @@
                 </ul>
             </div>
             <div id="center">
+            {% block content %}{% endblock %}
                 <!-- 此处非公用部分 -->
-                <div class="intro-signin">
+                <!--<div class="intro-signin">
                     粉丝太少，没有影响力？<br />
                     只想转发自己感兴趣的微博？<br />
                     恭喜你，来对地方了，我们是按标签和话题匹配的转发联盟！！！
                 </div>
                 <a href="/" class="signin-btn">
                     授权新浪微博
-                </a>
+                </a>-->
                 <!-- 此处非公用部分 -->
             </div>
         </div>
