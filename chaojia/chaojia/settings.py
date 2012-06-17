@@ -23,6 +23,8 @@ import os
 STATIC_PATH = os.path.join(os.path.dirname(__file__))
 PROJECT_PATH = os.path.realpath(os.path.dirname(__file__)).split("/")[:-1]
 PROJECT_PATH = "/".join(PROJECT_PATH)
+import redis
+rdb = redis.Redis(host='192.168.1.104', port=6379, db='chaojia')
 # Local time zone for this installation. Choices can be found here:
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
 # although not all choices may be available on all operating systems.
