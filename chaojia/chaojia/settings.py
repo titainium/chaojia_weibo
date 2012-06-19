@@ -3,6 +3,16 @@
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 
+
+
+SESSION_ENGINE = 'redis_sessions.session'
+SESSION_REDIS_HOST = 'localhost'
+SESSION_REDIS_PORT = 6379
+SESSION_REDIS_DB = 0
+SESSION_REDIS_PASSWORD = ''
+SESSION_REDIS_PREFIX = 'session'
+
+
 ADMINS = (
     # ('Your Name', 'your_email@example.com'),
 )
