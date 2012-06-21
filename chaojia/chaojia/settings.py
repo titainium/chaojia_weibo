@@ -12,6 +12,9 @@ SESSION_REDIS_DB = 0
 SESSION_REDIS_PASSWORD = ''
 SESSION_REDIS_PREFIX = 'session'
 
+import redis
+TAG = redis.StrictRedis(host='192.168.1.104', port=6379, db='tag')
+WEIBO = redis.StrictRedis(host='192.168.1.104', port=6379, db='weibo')
 
 ADMINS = (
     # ('Your Name', 'your_email@example.com'),
