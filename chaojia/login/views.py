@@ -9,7 +9,7 @@ from django.http import HttpResponseRedirect
 from django.shortcuts import render_to_response
 from django.http import HttpResponse, HttpResponseRedirect
 from django.template import Context, loader, RequestContext
-from weibo import APIClient
+from chaojia.weibo import APIClient
 import time
 import redis
 

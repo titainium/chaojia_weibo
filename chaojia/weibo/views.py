@@ -7,7 +7,7 @@ from provider import provider
 from django.template import Context, loader, RequestContext
 from django.http import HttpResponse, HttpResponseRedirect
 from django.conf import settings
-from weibo import APIClient
+from chaojia.weibo import APIClient
 import redis
 import time
 
