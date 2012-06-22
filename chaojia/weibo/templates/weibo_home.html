@@ -1,1 +1,19 @@
 {% extends "base.html" %}
+{% block content %}
+
+
+
+{%for w in weibos%}
+{{ w.text }} 转发({{ w.reposts_count }}) 评论({{ w.comments_count }}) ({{ w.created_at }}) &nbsp
+{% if w.zf %}
+已经转发
+{% else %}
+<a href="/weibo/zf/choose/?id={{ w.id }}">转发</a>
+{% endif %}
+<br /><br />
+{% endfor %}
+
+
+
+
+{% endblock %}
