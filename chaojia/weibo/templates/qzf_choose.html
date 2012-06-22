@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block content %}
+
+"微博内容: " {{ text }}<br />
+"创建时间: " {{ created_at }} <br />
+"转发数: " {{ reposts_count }} <br />
+"评论数: " {{ comments_count }} <br />
+
+
+<form action="">
+{% for t in tags %}
+
+<h><input type="checkbox" name="tags" value="{{ t }}" />{{ t }} </h>
+
+{% endfor %}
+<input type="hidden" name="id" value="{{ id }}">
+<input type="submit" name="zf" value="确定求转发">
+</form>
+
+
+
+{% endblock %}
