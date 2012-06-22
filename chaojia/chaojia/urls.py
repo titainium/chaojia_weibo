@@ -15,7 +15,7 @@ urlpatterns = patterns('',
     # Uncomment the next line to enable the admin:
     # url(r'^admin/', include(admin.site.urls)),
     (r'^weibo/',include('weibo.weiboUrl')),
-    (r'^oauth/',include('login.urls')),
+    (r'^oauth',include('login.urls')),
     (r'^js/(?P<path>.*)$', 'django.views.static.serve',{ 'document_root': settings.STATIC_PATH+'/public/js' }),
     (r'^css/(?P<path>.*)$', 'django.views.static.serve',{ 'document_root': settings.STATIC_PATH+'/public/css' }),
     (r'^images/(?P<path>.*)$', 'django.views.static.serve',{ 'document_root': settings.STATIC_PATH+'/public/images' }),

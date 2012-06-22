@@ -7,7 +7,11 @@
     <body>
         <div id="header">
             <div class="right">
-                谁抢了我的刺猬，积分：<span id="score">100</span>
+                {% if request.session.uid %}
+			欢迎, {{ request.session.screen_name }} <a href="/oauth/loginout/?uid={{ request.session.uid }}" >退出</a>
+		{% else %}
+			<a href="/oauth/login"><img src="http://www.sinaimg.cn/blog/developer/wiki/240.png"/></a>
+		{% endif %}
             </div>
             <a id="logo" href="/" alt="吵架">
                 <img src="/images/logo.png" />
@@ -43,7 +47,7 @@
                         <a href="javascript:;" class="get-score">赚积分</a>
                     </li>
                     <li>
-                        <a href="javascript:;" class="want-repost">求转发</a>
+                        <a href="/weibo/qzf/" class="want-repost">求转发</a>
                     </li>
                     <li>
                         <a href="javascript:;" class="invite-friends">邀请好友</a>
