@@ -7,10 +7,10 @@ from django.conf.urls.defaults import patterns, include, url
 urlpatterns = patterns('',
     # Examples:
     # url(r'^$', 'chaojiame.views.home', name='home'),
-     url(r'start', 'login.views.home'),
-     url(r'login', 'login.views.use_sina_login'),
+     url(r'loginout/$','login.views.loginout'),
+     url(r'start$', 'login.views.home'),
+     url(r'login$', 'login.views.use_sina_login'),
      url(r'sina$','login.views.sina_login_suc'),
-     url(r'test', 'login.views.fortest'),
      #url(r'suc', 'iweibo8.login.views.sina_login_suc'),
 
     # Uncomment the admin/doc line below to enable admin documentation:

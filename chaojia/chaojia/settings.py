@@ -3,10 +3,12 @@
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 
-
+APP_KEY = '' # app key
+APP_SECRET = '' # app secret
+CALLBACK_URL = '' # callback url
 
 SESSION_ENGINE = 'redis_sessions.session'
-SESSION_REDIS_HOST = '192.168.1.104'
+SESSION_REDIS_HOST = 'localhost'
 SESSION_REDIS_PORT = 6379
 SESSION_REDIS_DB = 0
 SESSION_REDIS_PASSWORD = ''
@@ -44,7 +46,7 @@ PROJECT_PATH = "/".join(PROJECT_PATH)
 # timezone as the operating system.
 # If running in a Windows environment this must be set to the same as your
 # system time zone.
-TIME_ZONE = 'America/Chicago'
+TIME_ZONE = 'Asia/Shangha'
 
 # Language code for this installation. All choices can be found here:
 # http://www.i18nguy.com/unicode/language-identifiers.html
@@ -138,10 +140,15 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'chaojia',
     'login',
+    'weibo',
     # Uncomment the next line to enable the admin:
     # 'django.contrib.admin',
     # Uncomment the next line to enable admin documentation:
     # 'django.contrib.admindocs',
+)
+
+TEMPLATE_CONTEXT_PROCESSORS = (
+   'django.core.context_processors.request',
 )
 
 # A sample logging configuration. The only tangible logging
