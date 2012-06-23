@@ -81,9 +81,8 @@ def qzf(request):
         for l in i.keys():
             if l != "weight":
                 tags.append(i[l])
-    myWeibos = client.get.statuses__user_timeline().statuses
     
-    for w in myWeibos:
+    for w in client.get.statuses__user_timeline().statuses:
         wbls.append(checkwb(w,uid).check_zf(tags))
     
     c = RequestContext(request,{
@@ -110,6 +109,7 @@ def choose_weibo_zf(request):
         return HttpResponseRedirect("/oauth/start")   #user no login, redirect to login page
     
     weibo = client.statuses__show(id=id)
+    weibo['created_at'] = time.strftime("%Y-%m-%d %H:%M:%S",time.strptime(weibo['created_at'],"%a %b %d %H:%M:%S +0800 %Y"))
     if request.GET.has_key('zf'):
         myredis.set("weiboid_"+str(weibo['id']),weibo)
         
@@ -120,7 +120,7 @@ def choose_weibo_zf(request):
     text = weibo['text']
     reposts_count = weibo['reposts_count']
     comments_count = weibo['comments_count']
-    created_at = time.strftime("%Y-%m-%d %H:%M:%S",time.strptime(weibo['created_at'],"%a %b %d %H:%M:%S +0800 %Y"))
+    created_at = weibo['created_at']
     tags = []
     for i in client.tags(uid=uid):
         for l in i.keys():
