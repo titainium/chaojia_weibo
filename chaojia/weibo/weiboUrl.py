@@ -15,7 +15,6 @@ urlpatterns = patterns('',
     # Uncomment the next line to enable the admin:
     # url(r'^admin/', include(admin.site.urls)),
     (r'^$','weibo.views.weibo_home'),
-    (r'^$','weibo.views.weibo_home'),
     (r'qzf/$','weibo.views.qzf'),
     (r'qzf/choose/$','weibo.views.choose_weibo_zf'),
 )

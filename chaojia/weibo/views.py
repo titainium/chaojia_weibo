@@ -29,7 +29,7 @@ def weibo_home(request):
         weibo = provider.getWeiboById(wid)
         weibos.append(weibo)
     
-    return HttpResponse(weibos)
+    return render_to_response('weibo_home.html',{'weibos':weibos})
 
 
 def qzf(request):
