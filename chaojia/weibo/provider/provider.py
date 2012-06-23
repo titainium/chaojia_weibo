@@ -4,9 +4,9 @@ Created on 2012-6-21
 
 @author: shellshy
 '''
-import redis
-TAG = redis.StrictRedis(host='localhost', port=6379, db=2)
-WEIBO = redis.StrictRedis(host='localhost', port=6379, db=4)
+import redis,json
+TAG = redis.StrictRedis(host='localhost', port=6379, db=0)
+WEIBO = redis.StrictRedis(host='localhost', port=6379, db=0)
 
 def getTags():
     tags = TAG.keys()
@@ -53,4 +53,5 @@ def getWeiboIdByUid(uid):
 #通过微博的id获取微博的详细信息
 def getWeiboById(wid):
     weibo = WEIBO.get("weiboid_" + wid)
+    #weibo = json.loads(weibo)
     return weibo
