@@ -24,11 +24,12 @@ def weibo_home(request):
             raise
         
         tags = provider.getUserTags(uid)
-        wids = set()
+        wids = []
         for tag in tags:
             result = provider.getWeiboIdByTag(tag)
-            wids = wids | result
-            
+            wids = wids + result
+        
+        wids = set(wids)    
         weibos = []
         for wid in wids:
             weibo = provider.getWeiboById(wid)
