@@ -4,14 +4,16 @@ Created on 2012-6-21
 
 @author: shellshy
 '''
-from django.conf import settings
+import redis
+TAG = redis.StrictRedis(host='localhost', port=6379, db=2)
+WEIBO = redis.StrictRedis(host='localhost', port=6379, db=4)
 
 def getTags():
-    tags = settings.TAG.keys()
+    tags = TAG.keys()
     return tags
 
 def getUserList(tag):
-    uids = settings.TAG.smembers(tag)
+    uids = TAG.smembers(tag)
     return uids
 
 #获取用户标签
@@ -39,15 +41,15 @@ def getRelateUsers(uid):
 
 #通过标签获取微博的id集合
 def getWeiboIdByTag(tag):
-    ids = settings.WEIBO.smembers(tag + '_weiboids')
+    ids = WEIBO.smembers(tag + '_weiboids')
     return ids
 
 #通过用户id获取微博的数据
 def getWeiboIdByUid(uid):
-    ids = settings.WEIBO.smembers(uid + '_weiboids')
+    ids = WEIBO.smembers(uid + '_weiboids')
     return ids
 
 #通过微博的id获取微博的详细信息
 def getWeiboById(wid):
-    weibo = settings.WEIBO.smembers(wid)
+    weibo = WEIBO.smembers(wid)
     return weibo
