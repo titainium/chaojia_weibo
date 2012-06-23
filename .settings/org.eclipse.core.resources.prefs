@@ -1,6 +1,7 @@
-#Fri Jun 22 15:03:03 CST 2012
+#Sat Jun 23 15:01:07 CST 2012
 eclipse.preferences.version=1
 encoding//chaojia/login/views.py=utf-8
 encoding//chaojia/login/weibo.py=utf-8
 encoding//chaojia/weibo/provider/provider.py=utf-8
 encoding//chaojia/weibo/views.py=utf-8
+encoding/<project>=UTF-8
