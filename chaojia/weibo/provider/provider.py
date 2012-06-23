@@ -29,13 +29,14 @@ def getUserTags(uid):
 
 #获取用户标签相关的用户的uid列表
 def getRelateUsers(uid):
-    result = set()
+    result = []
     tags = getTags()
     for tag in tags:
         uids = getUserList(tag)
         if uid in uids:
-            result = result | uids
+            result = result + uids
     
+    result = set(result)
     result = result - uid
     return result
 
@@ -51,5 +52,5 @@ def getWeiboIdByUid(uid):
 
 #通过微博的id获取微博的详细信息
 def getWeiboById(wid):
-    weibo = WEIBO.smembers(wid)
+    weibo = WEIBO.smembers("weiboid_" + wid)
     return weibo
