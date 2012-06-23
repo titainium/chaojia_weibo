@@ -18,19 +18,26 @@ client = APIClient(app_key=APP_KEY, app_secret=APP_SECRET, redirect_uri=CALLBACK
 myredis = redis.StrictRedis(host='localhost', port=6379, db=0)
 
 def weibo_home(request):
-    tags = provider.getUserTags('1')
-    wids = set()
-    for tag in tags:
-        result = provider.getWeiboIdByTag(tag)
-        wids = wids | result
+    try:
+        uid = str(request.session["uid"])
+        if int(time.time()) > int(myredis.lindex("token_"+uid,1)):
+            raise
         
-    weibos = []
-    for wid in wids:
-        weibo = provider.getWeiboById(wid)
-        weibos.append(weibo)
-    
-    return render_to_response('weibo_home.html',{'weibos':weibos})
-
+        tags = provider.getUserTags(uid)
+        wids = set()
+        for tag in tags:
+            result = provider.getWeiboIdByTag(tag)
+            wids = wids | result
+            
+        weibos = []
+        for wid in wids:
+            weibo = provider.getWeiboById(wid)
+            weibos.append(weibo)
+        
+        return render_to_response('weibo_home.html',{'weibos':weibos})
+    except:
+        
+        return HttpResponseRedirect("/oauth/start")
 
 def qzf(request):
     '''author: Mingyou(378868467@qq.com) 2012-06-21'''
