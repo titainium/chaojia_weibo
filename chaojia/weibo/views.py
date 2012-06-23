@@ -35,7 +35,10 @@ def weibo_home(request):
             weibo = provider.getWeiboById(wid)
             weibos.append(weibo)
         
-        return render_to_response('weibo_home.html',{'weibos':weibos})
+        c = RequestContext(request,{
+            "weibos":weibos,
+        })
+        return render_to_response('weibo_home.html',c)
     except:
         
         return HttpResponseRedirect("/oauth/start")

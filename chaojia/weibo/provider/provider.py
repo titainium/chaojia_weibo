@@ -52,5 +52,5 @@ def getWeiboIdByUid(uid):
 
 #通过微博的id获取微博的详细信息
 def getWeiboById(wid):
-    weibo = WEIBO.smembers("weiboid_" + wid)
+    weibo = WEIBO.get("weiboid_" + wid)
     return weibo
