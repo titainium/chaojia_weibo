@@ -43,7 +43,6 @@ def weibo_home(request):
             weibo = eval(weibo)
             weibos.append(weibo)
         
-        print weibos
         c = RequestContext(request,{
             "weibos":weibos,
         })
