@@ -39,13 +39,25 @@ def weibo_home(request):
         result = provider.getWeiboIdByTag(tag)
         wids = wids | result
     
+    wids = provider.filterZF(uid, wids)#过滤3小时内转发过的微博id
+    zhiding_wids = provider.getZhiDingWid(uid)#用户获取置顶的微博id
+    
+    #获取3小时内没有转发过的微博信息
     weibos = []
     for wid in wids:
         weibo = provider.getWeiboById(wid)
         weibo = eval(weibo)
         weibos.append(weibo)
+    
+    #获取置顶的微博信息
+    zhiding_weibos = []
+    for wid in zhiding_wids:
+        weibo = provider.getWeiboById(wid)
+        weibo = eval(weibo)
+        zhiding_weibos.append(weibo)
+    
     c = RequestContext(request,{
-        "weibos":weibos,
+        "weibos":zhiding_weibos + weibos,
     })
     return render_to_response('weibo_home.html',c)    
 

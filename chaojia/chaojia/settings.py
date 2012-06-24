@@ -3,8 +3,8 @@
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 
-APP_KEY = '2577622279' # app key
-APP_SECRET = '355b225111fe01e8b25e98b1e84863d7' # app secret
+APP_KEY = '1761202298' # app key
+APP_SECRET = 'f87c97624668c3b8368148d59d8b7052' # app secret
 CALLBACK_URL = 'http://192.168.1.104/oauth/sina' # callback url
 
 SESSION_ENGINE = 'redis_sessions.session'
