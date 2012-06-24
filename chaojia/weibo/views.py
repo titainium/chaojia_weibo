@@ -25,31 +25,29 @@ def weibo_home(request):
         access_token = myredis.lindex("token_"+uid,0)
         expires_in = myredis.lindex("token_"+uid,1)
         client.set_access_token(access_token, expires_in)
-        
-        tags = []
-        for i in client.tags(uid=uid):
-            for l in i.keys():
-                if l != "weight":
-                    tags.append(i[l])
-        
-        wids = set()
-        for tag in tags:
-            result = provider.getWeiboIdByTag(tag)
-            wids = wids | result
-        
-        weibos = []
-        for wid in wids:
-            weibo = provider.getWeiboById(wid)
-            weibo = eval(weibo)
-            weibos.append(weibo)
-        
-        c = RequestContext(request,{
-            "weibos":weibos,
-        })
-        return render_to_response('weibo_home.html',c)
     except:
         
-        return HttpResponseRedirect("/oauth/start")
+        return HttpResponseRedirect("/oauth/start")    
+    tags = []
+    for i in client.tags(uid=uid):
+        for l in i.keys():
+            if l != "weight":
+                tags.append(i[l])
+    
+    wids = set()
+    for tag in tags:
+        result = provider.getWeiboIdByTag(tag)
+        wids = wids | result
+    
+    weibos = []
+    for wid in wids:
+        weibo = provider.getWeiboById(wid)
+        weibo = eval(weibo)
+        weibos.append(weibo)
+    c = RequestContext(request,{
+        "weibos":weibos,
+    })
+    return render_to_response('weibo_home.html',c)    
 
 def qzf(request):
     '''author: Mingyou(378868467@qq.com) 2012-06-21'''
