@@ -57,7 +57,8 @@ def weibo_home(request):
         zhiding_weibos.append(weibo)
     
     c = RequestContext(request,{
-        "weibos":zhiding_weibos + weibos,
+        "zhiding_weibos":zhiding_weibos,
+        "weibos": weibos,
     })
     return render_to_response('weibo_home.html',c)    
 
