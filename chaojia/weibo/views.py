@@ -40,6 +40,7 @@ def weibo_home(request):
         weibos = []
         for wid in wids:
             weibo = provider.getWeiboById(wid)
+            weibo = eval(weibo)
             weibos.append(weibo)
         
         print weibos
