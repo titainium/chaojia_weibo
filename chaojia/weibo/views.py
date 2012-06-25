@@ -37,6 +37,8 @@ def weibo_home(request):
     wids = set()
     for tag in tags:
         result = provider.getWeiboIdByTag(tag)
+        if result == None:
+            continue
         wids = wids | result
     
     wids = provider.filterZF(uid, wids)#过滤3小时内转发过的微博id
@@ -46,6 +48,8 @@ def weibo_home(request):
     weibos = []
     for wid in wids:
         weibo = provider.getWeiboById(wid)
+        if weibo == None:
+            continue
         weibo = eval(weibo)
         weibos.append(weibo)
     
@@ -53,6 +57,8 @@ def weibo_home(request):
     zhiding_weibos = []
     for wid in zhiding_wids:
         weibo = provider.getWeiboById(wid)
+        if weibo == None:
+            continue
         weibo = eval(weibo)
         zhiding_weibos.append(weibo)
     
