@@ -104,8 +104,11 @@ def getWeiboById(wid):
 #用户获取置顶的weibo数据
 def getZhiDingWid(uid):
     result = []
-    zhiding_wids = ADMIN.get['zhiding'].values()#获取置顶的微博id    
-    keys = ADMIN.keys()#三个小时用户转发过的微博wid
+    zhiding_wids = []
+    try:
+        zhiding_wids = ADMIN.get['zhiding'].values()#获取置顶的微博id
+    except:
+        None
     count = 0
     
     if zhiding_wids == None:
@@ -115,17 +118,16 @@ def getZhiDingWid(uid):
         if count > 3:
             break;
         
-        if 'zf_' + uid + '_' + str(wid) not in keys:
+        if WEIBO.get('overdue_'+uid+'_'+wid) == None:
             count = count + 1
             result.append(wid)#添加置顶的微博id
     
     return result
 
 #过滤3小时内已经转发过的微博
-def filterZF(uid,wids):    
+def filterZF(uid,wids):
     result = []
-    keys = ADMIN.keys()#三个小时用户转发过的微博wid
     for wid in wids:
-        if 'zf_' + uid + '_' + str(wid) not in keys:
+        if WEIBO.get('overdue_'+uid+'_'+wid) == None:#表示该微博三小时内没有转发
             result.append(wid)
     return result
