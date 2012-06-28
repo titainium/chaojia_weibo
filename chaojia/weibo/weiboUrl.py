@@ -16,5 +16,8 @@ urlpatterns = patterns('',
     # url(r'^admin/', include(admin.site.urls)),
     (r'^$','weibo.views.weibo_home'),
     (r'qzf/$','weibo.views.qzf'),
-    (r'qzf/choose/$','weibo.views.choose_weibo_zf'),
+    (r'qzf/choose/$','weibo.views.choose_weibo_qzf'),
+    (r'zf/choose/$','weibo.views.zf_choose'),
+    (r'zf/weibo/$','weibo.views.zf_weibo'),
+    
 )

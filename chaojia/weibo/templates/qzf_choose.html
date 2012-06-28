@@ -9,12 +9,18 @@
 
 <form action="">
 {% for t in tags %}
-
 <h><input type="checkbox" name="tags" value="{{ t }}" />{{ t }} </h>
-
 {% endfor %}
+{% if gg %}
+<input type="hidden" name="tags" value="广告">
+{% endif %}
 <input type="hidden" name="id" value="{{ id }}">
 <input type="submit" name="zf" value="确定求转发">
+{% if gg %}
+<br>
+系统判断您这条微博为广告,将按求转发广告发布,如有错误请点击右边审核提交审核,谢谢.
+<input type="submit" name="zfsh" value="审核">
+{% endif %}
 </form>
 
 

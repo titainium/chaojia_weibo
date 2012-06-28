@@ -17,7 +17,21 @@ APP_KEY = settings.APP_KEY
 APP_SECRET = settings.APP_SECRET
 CALLBACK_URL = settings.CALLBACK_URL
 client = APIClient(app_key=APP_KEY, app_secret=APP_SECRET, redirect_uri=CALLBACK_URL)
-myredis = redis.StrictRedis(host='localhost', port=6379, db=0)
+
+login_redis_host = settings.LOGIN_REDIS_HOST
+login_redis_port = int(settings.LOGIN_REDIS_PORT)
+login_redis_db = int(settings.LOGIN_REDIS_DB)
+loginRedis = redis.StrictRedis(host=login_redis_host, port=login_redis_port, db=login_redis_db)
+
+ponit_redis_host = settings.PONIT_REDIS_HOST
+ponit_redis_port = int(settings.PONIT_REDIS_PORT)
+ponit_redis_db = int(settings.PONIT_REDIS_DB)
+PRedis = redis.StrictRedis(host=ponit_redis_host, port=ponit_redis_port, db=ponit_redis_db)
+
+ponit_history_redis_host = settings.PONIT_HISTORY_REDIS_HOST
+ponit_history_redis_port = int(settings.PONIT_HISTORY_REDIS_PORT)
+ponit_history_redis_db = int(settings.PONIT_HISTORY_REDIS_DB)
+PHRedis = redis.StrictRedis(host=ponit_history_redis_host, port=ponit_history_redis_port, db=ponit_history_redis_db)
 
 def use_sina_login(request):
     
@@ -36,11 +50,21 @@ def sina_login_suc(request):
     client.set_access_token(access_token, expires_in)
     uid = str(client.get.account__get_uid()["uid"])
     userProfile = client.users__show(uid=uid)
-    myredis.set("user_"+uid,userProfile)
+    loginRedis.set("user_"+uid,userProfile)
     request.session['uid'] = uid
     request.session['screen_name'] = userProfile['screen_name']
-    myredis.ltrim('token_'+uid,start=1,end=0)
-    myredis.lpush('token_'+uid,expires_in,access_token)
+    loginRedis.ltrim('token_'+uid,start=1,end=0)
+    loginRedis.lpush('token_'+uid,expires_in,access_token)
+    if 'ponit_'+uid not in PRedis.keys():
+        PRedis.hset('ponit_'+uid,'current_point',10)
+        PRedis.hset('ponit_'+uid,'time',1)
+    if 'ph_'+uid not in PHRedis.keys():
+       dt = {"current_point":10,
+            "previous_point":0,
+            "change_point":"+10",
+            "change_time":time.strftime("%Y-%m-%d %H:%M:%S"),
+            "change_reason":"用户新注册", }
+       PHRedis.lpush('ph_'+uid,dt)
     
     return HttpResponseRedirect("/oauth/start")
 
@@ -55,8 +79,13 @@ def loginout(request):
 
 
 def home(request):
+    try:
+        uid = str(request.session["uid"])
+        if int(time.time()) > int(loginRedis.lindex("token_"+uid,1)):
+            del request.session['uid']
+    except:
+        pass
     
-   
     c = RequestContext(request,{
 
     })  

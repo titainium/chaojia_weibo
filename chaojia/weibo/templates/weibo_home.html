@@ -11,15 +11,22 @@
 {% endif %}
 <br /><br />
 {% endfor %}
+--------------------------------------------------------------------------------------------------
+<br />
 
 {%for w in weibos%}
+<form action='/weibo/zf/choose/'>
 {{ w.text }} 转发({{ w.reposts_count }}) 评论({{ w.comments_count }}) ({{ w.created_at }}) &nbsp
-{% if w.zf %}
-已经转发
-{% else %}
-<a href="/weibo/zf/choose/?id={{ w.id }}">转发</a>
-{% endif %}
+<input type="radio" value="m" checked="checked" name="point"/>中立
+<input type="radio" value="n" name="point" />反对
+<input type="radio" value="y" name="point" />赞同
+<input type="hidden" value="{{ w.id }}" name="id" >
+<input type="submit" name="zf" value="转发">
 <br /><br />
+</form>
+
+
+
 {% endfor %}
 
 

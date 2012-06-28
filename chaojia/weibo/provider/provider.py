@@ -5,9 +5,23 @@ Created on 2012-6-21
 @author: shellshy
 '''
 import redis,json
-TAG = redis.StrictRedis(host='localhost', port=6379, db=0)
-WEIBO = redis.StrictRedis(host='localhost', port=6379, db=0)
-ADMIN = redis.StrictRedis(host='localhost', port=6379, db=9)
+from django.conf import settings
+
+tag_redis_host = settings.TAG_REDIS_HOST
+tag_redis_port = int(settings.TAG_REDIS_PORT)
+tag_redis_db = int(settings.TAG_REDIS_DB)
+TAG = redis.StrictRedis(host=tag_redis_host, port=tag_redis_port, db=tag_redis_db)
+
+weibo_redis_host = settings.WEIBO_REDIS_HOST
+weibo_redis_port = int(settings.WEIBO_REDIS_PORT)
+weibo_redis_db = int(settings.WEIBO_REDIS_DB)
+WEIBO = redis.StrictRedis(host=weibo_redis_host, port=weibo_redis_port, db=weibo_redis_db)
+
+admin_redis_host = settings.ADMIN_REDIS_HOST
+admin_redis_port = int(settings.ADMIN_REDIS_PORT)
+admin_redis_db = int(settings.ADMIN_REDIS_DB)
+ADMIN = redis.StrictRedis(host=admin_redis_host,port=admin_redis_port, db=admin_redis_db)
+
 
 def getTags():
     tags = None
