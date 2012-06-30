@@ -296,6 +296,9 @@ def choose_weibo_qzf(request):
         return HttpResponse(result)
     
     if request.GET.has_key('zf'):
+        weibo['tags'] = request.GET.getlist("tags")
+        weibo['reposts_count'] = 0
+        weibo['comments_count'] = 0
         weiboRedis.set("weiboid_"+str(weibo['id']),weibo)
         
         for i in request.GET.getlist("tags"):
