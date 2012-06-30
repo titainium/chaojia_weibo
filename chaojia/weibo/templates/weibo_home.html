@@ -1,6 +1,16 @@
 {% extends "base.html" %}
 {% block content %}
 
+<form action='/weibo/tags/'>
+	<select name="tags">
+		<option value="广告" >广告</option>
+	{% for tag in tags %}		
+		<option value="{{tag}}" >{{tag}}</option>
+	{% endfor %}
+	</select>
+	<input type="submit" value="查看">
+</form>
+<br />
 
 {%for w in zhiding_weibos%}
 {{ w.text }} 转发({{ w.reposts_count }}) 评论({{ w.comments_count }}) ({{ w.created_at }}) &nbsp
@@ -22,7 +32,7 @@
 <input type="radio" value="y" name="point" />赞同
 <input type="hidden" value="{{ w.id }}" name="id" >
 <input type="submit" name="zf" value="转发">
-<input type="hidden" value="tag" name="tag" >
+<input type="hidden" value="{{w.tag}}" name="tag" >
 
 <br /><br />
 </form>

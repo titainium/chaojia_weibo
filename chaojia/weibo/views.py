@@ -58,24 +58,31 @@ def weibo_home(request):
             if l != "weight":
                 tags.append(i[l])
     
-    wids = set()
+    tag_wids = []
     for tag in tags:
         result = provider.getWeiboIdByTag(tag)
         if result == None:
             continue
-        wids = wids | result
+        tw = {tag:result}
+        tag_wids.append(tw)
     
-    wids = provider.filterZF(uid, wids)#过滤3小时内转发过的微博id
+    data = {}
+    for tw in tag_wids:
+        wids = provider.filterZF(uid, tw.values()[0])#过滤3小时内转发过的微博id
+        data[tw.keys()[0]] = wids
+        
     zhiding_wids = provider.getZhiDingWid(uid)#用户获取置顶的微博id
     
     #获取3小时内没有转发过的微博信息
     weibos = []
-    for wid in wids:
-        weibo = provider.getWeiboById(wid)
-        if weibo == None:
-            continue
-        weibo = eval(weibo)
-        weibos.append(weibo)
+    for d in data.keys():
+        for wid in data[d]:
+            weibo = provider.getWeiboById(wid)
+            if weibo == None:
+                continue
+            weibo = eval(weibo)
+            weibo['tag'] = d
+            weibos.append(weibo)
     
     #获取置顶的微博信息
     zhiding_weibos = []
@@ -89,9 +96,58 @@ def weibo_home(request):
     c = RequestContext(request,{
         "zhiding_weibos":zhiding_weibos,
         "weibos": weibos,
+        "tags":tags
     })
     return render_to_response('weibo_home.html',c)  
 
+def weibo_tags(request):
+    try:        
+        uid = str(request.session["uid"])
+        if int(time.time()) > int(loginRedis.lindex("token_"+uid,1)):
+            raise
+        access_token = loginRedis.lindex("token_"+uid,0)
+        expires_in = loginRedis.lindex("token_"+uid,1)
+        client.set_access_token(access_token, expires_in)
+    except:
+        
+        return HttpResponseRedirect("/oauth/start")
+    tags = []
+    for i in client.tags(uid=uid):
+        for l in i.keys():
+            if l != "weight":
+                tags.append(i[l])
+    
+    tag = request.GET['tags']
+    
+    tag_wids = []
+    result = provider.getWeiboIdByTag(tag)
+    if result == None:
+        result = []
+    tw = {tag:result}
+    tag_wids.append(tw)
+    
+    data = {}
+    for tw in tag_wids:
+        wids = provider.filterZF(uid, tw.values()[0])#过滤3小时内转发过的微博id
+        data[tw.keys()[0]] = wids
+    
+    #获取3小时内没有转发过的微博信息
+    weibos = []
+    for d in data.keys():
+        for wid in data[d]:
+            weibo = provider.getWeiboById(wid)
+            if weibo == None:
+                continue
+            weibo = eval(weibo)
+            weibo['tag'] = d
+            weibos.append(weibo)
+    
+    c = RequestContext(request,{
+        "weibos": weibos,
+        "tags":tags,
+        "select_tag":tag
+    })
+    return render_to_response('weibo_home.html',c)  
 
 def zf_choose(request):
     '''author: Mingyou(378868467@qq.com) 2012-06-26'''
