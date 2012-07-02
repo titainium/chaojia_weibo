@@ -149,6 +149,7 @@ TEMPLATE_DIRS = (
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
     os.path.join(PROJECT_PATH, 'weibo', 'templates'), 
+    os.path.join(PROJECT_PATH, 'admins', 'templates'),
     os.path.join(PROJECT_PATH, 'chaojia', 'templates'), 
 )
 
@@ -200,3 +201,5 @@ LOGGING = {
         },
     }
 }
+
+ADMIN_WID=["2717080853",]

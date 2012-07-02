@@ -9,7 +9,7 @@ from django.http import HttpResponseRedirect
 from django.shortcuts import render_to_response
 from django.http import HttpResponse, HttpResponseRedirect
 from django.template import Context, loader, RequestContext
-from chaojia.weibo import APIClient
+from chaojia.weiboapi import APIClient
 import time
 import redis
 
@@ -53,12 +53,12 @@ def sina_login_suc(request):
     loginRedis.set("user_"+uid,userProfile)
     request.session['uid'] = uid
     request.session['screen_name'] = userProfile['screen_name']
-    loginRedis.ltrim('token_'+uid,start=1,end=0)
-    loginRedis.lpush('token_'+uid,expires_in,access_token)
-    if 'ponit_'+uid not in PRedis.keys():
+    loginRedis.hset('token_'+uid,"access_token",access_token)
+    loginRedis.hset('token_'+uid,"expires_in",expires_in)
+    if PRedis.exists('ponit_'+uid) == False:
         PRedis.hset('ponit_'+uid,'current_point',10)
         PRedis.hset('ponit_'+uid,'time',1)
-    if 'ph_'+uid not in PHRedis.keys():
+    if PHRedis.exists('ph_'+uid) == False:
        dt = {"current_point":10,
             "previous_point":0,
             "change_point":"+10",
@@ -66,6 +66,16 @@ def sina_login_suc(request):
             "change_reason":"用户新注册", }
        PHRedis.lpush('ph_'+uid,dt)
     
+    if PRedis.exists('ponit_gg_'+uid) == False:
+        PRedis.hset('ponit_gg_'+uid,'current_point',1)
+        PRedis.hset('ponit_gg_'+uid,'time',1)
+    if PHRedis.exists('ph_gg_'+uid) == False:
+       dt = {"current_point":1,
+            "previous_point":0,
+            "change_point":"+1",
+            "change_time":time.strftime("%Y-%m-%d %H:%M:%S"),
+            "change_reason":"用户新注册", }
+       PHRedis.lpush('ph_gg_'+uid,dt)
     return HttpResponseRedirect("/oauth/start")
 
 def loginout(request):
@@ -81,7 +91,7 @@ def loginout(request):
 def home(request):
     try:
         uid = str(request.session["uid"])
-        if int(time.time()) > int(loginRedis.lindex("token_"+uid,1)):
+        if int(time.time()) > int(loginRedis.hget("token_"+uid,"expires_in")):
             del request.session['uid']
     except:
         pass

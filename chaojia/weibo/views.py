@@ -7,7 +7,7 @@ from provider import provider
 from django.template import Context, loader, RequestContext
 from django.http import HttpResponse, HttpResponseRedirect
 from django.conf import settings
-from chaojia.weibo import APIClient
+from chaojia.weiboapi import APIClient
 import redis
 import time
 
@@ -44,10 +44,10 @@ adminRedis = redis.StrictRedis(host=admin_redis_host,port=admin_redis_port, db=a
 def weibo_home(request):
     try:        
         uid = str(request.session["uid"])
-        if int(time.time()) > int(loginRedis.lindex("token_"+uid,1)):
+        if int(time.time()) > int(loginRedis.hget("token_"+uid,"expires_in")):
             raise
-        access_token = loginRedis.lindex("token_"+uid,0)
-        expires_in = loginRedis.lindex("token_"+uid,1)
+        access_token = loginRedis.hget("token_"+uid,"access_token")
+        expires_in = loginRedis.hget("token_"+uid,"expires_in")
         client.set_access_token(access_token, expires_in)
     except:
         
@@ -103,10 +103,10 @@ def weibo_home(request):
 def weibo_tags(request):
     try:        
         uid = str(request.session["uid"])
-        if int(time.time()) > int(loginRedis.lindex("token_"+uid,1)):
+        if int(time.time()) > int(loginRedis.hget("token_"+uid,"expires_in")):
             raise
-        access_token = loginRedis.lindex("token_"+uid,0)
-        expires_in = loginRedis.lindex("token_"+uid,1)
+        access_token = loginRedis.hget("token_"+uid,"access_token")
+        expires_in = loginRedis.hget("token_"+uid,"expires_in")
         client.set_access_token(access_token, expires_in)
     except:
         
@@ -177,48 +177,81 @@ def zf_choose(request):
 
 def zf_weibo(request):
     '''author: Mingyou(378868467@qq.com) 2012-06-25'''
-    
+    def ponitOpe(uid,point,reason):
+        userCurPonit = int(PRedis.hget('ponit_'+uid,'current_point'))
+        userTimePonit = int(PRedis.hget('ponit_'+uid,'time'))
+        PRedis.hset('ponit_'+uid,'current_point',userCurPonit + point*userTimePonit)
+        dt = eval(PHRedis.lindex('ph_'+uid,0))
+        dt['change_time'] = time.strftime("%Y-%m-%d %H:%M:%S")
+        dt['current_point'] = userCurPonit + point*userTimePonit
+        dt['previous_point'] = userCurPonit
+        dt['change_point'] = '+'+str(point*userTimePonit)
+        dt['change_reason'] = reason + str(userTimePonit)
+        PHRedis.lpush('ph_'+uid,dt)
+        keyTime = time.strftime("%Y%m%d%H")
+        if PHRedis.hget("phh_"+uid,keyTime) == None:
+            PHRedis.hset("phh_"+uid,keyTime,point*userTimePonit)
+        else:
+            phhPonit = point*userTimePonit + int(PHRedis.hget("phh_"+uid,keyTime))
+            PHRedis.hset("phh_"+uid,keyTime,phhPonit)
+        
+        return str(point*userTimePonit) 
     try:        
         wid = str(request.GET['id'])
         uid = str(request.session["uid"])
         status = request.GET['t']
-        if int(time.time()) > int(loginRedis.lindex("token_"+uid,1)):
+        if int(time.time()) > int(loginRedis.hget("token_"+uid,"expires_in")):
             raise
-        access_token = loginRedis.lindex("token_"+uid,0)
-        expires_in = loginRedis.lindex("token_"+uid,1)
+        access_token = loginRedis.hget("token_"+uid,"access_token")
+        expires_in = loginRedis.hget("token_"+uid,"expires_in")
         client.set_access_token(access_token, expires_in)
     except:
         return HttpResponseRedirect("/oauth/start")    
     
+    wb = eval(weiboRedis.get("weiboid_"+wid))
+    wuid = str(wb['user']['id'])
+    wb['reposts_count'] = 1 + int(wb['reposts_count'])
     if weiboRedis.get('overdue_'+uid+'_'+wid) != None:
         return HttpResponse('3小时内不能转发同一条微博 !')
+    if wuid == uid:
+        return HttpResponse('自己不能转发自己的微博 !')
     is_comment = 0
     if request.GET.has_key('is_comment'):
         is_comment = request.GET['is_comment']
-    try:
-        client.post.statuses__repost(id = wid, status = status,is_comment=is_comment)
-    except:
-        return HttpResponse("network error. pls try again...")
-    userCurPonit = int(PRedis.hget('ponit_'+uid,'current_point'))
-    userTimePonit = int(PRedis.hget('ponit_'+uid,'time'))
-    PRedis.hset('ponit_'+uid,'current_point',userCurPonit + 1*userTimePonit)
-    dt = eval(PHRedis.lindex('ph_'+uid,0))
-    dt['change_time'] = time.strftime("%Y-%m-%d %H:%M:%S")
-    dt['current_point'] = userCurPonit + 1*userTimePonit
-    dt['previous_point'] = userCurPonit
-    dt['change_point'] = '+'+str(1*userTimePonit)
-    dt['change_reason'] = '用户转发微博,倍率: '+ str(userTimePonit)
-    PHRedis.lpush('ph_'+uid,dt)
-    keyTime = time.strftime("%Y%m%d%H")
-    if PHRedis.hget("phh_"+uid,keyTime) == None:
-        PHRedis.hset("phh_"+uid,keyTime,1)
-    else:
-        phhPonit = 1 + int(PHRedis.hget("phh_"+uid,keyTime))
-        PHRedis.hset("phh_"+uid,keyTime,phhPonit)
-    weiboRedis.setex('overdue_'+uid+'_'+wid,10800,time.strftime("%Y-%m-%d %H:%M:%S"))
+        wb['comments_count'] = 1 + int(wb['comments_count'])
+    wuserCurPonit = int(PRedis.hget('ponit_'+wuid,'current_point'))
+    if u"广告" in wb['tags']:
+        if wuserCurPonit >= 20:
+            userCurPonit = int(PRedis.hget('ponit_gg_'+uid,'current_point'))
+            if userCurPonit >= 1 :
+                PRedis.hset('ponit_gg_'+uid,'current_point',userCurPonit - 1)
+                PRedis.hset('ponit_'+wuid,'current_point',wuserCurPonit - 20)
+                try:
+                    client.post.statuses__repost(id = wid, status = status,is_comment=is_comment)
+                    weiboRedis.zadd("weiboid_order_hot",int(wb['reposts_count'])+int(wb['comments_count']),wid)
+                    weiboRedis.set("weiboid_"+wid,wb)
+                    weiboRedis.setex('overdue_'+uid+'_'+wid,10800,time.strftime("%Y-%m-%d %H:%M:%S"))
+                except:
+                    return HttpResponse("network error. pls try again...")
+                return HttpResponse("转发广告微博成功,积分 +"+ponitOpe(uid,20,"转发广告微博,倍率: "))
+            else:
+                return HttpResponse("您的广告积分不够,不能转发此广告微博")
+        else:
+            return HttpResponse("该广告微博用户积分不够,您不能转发.")
     
-    return HttpResponse("转发成功,积分 +"+str(1*userTimePonit))
-
+    else:
+       if wuserCurPonit >= 1:
+            PRedis.hset('ponit_'+wuid,'current_point',wuserCurPonit - 1)
+            try:
+                client.post.statuses__repost(id = wid, status = status,is_comment=is_comment)
+                weiboRedis.zadd("weiboid_order_hot",int(wb['reposts_count'])+int(wb['comments_count']),wid)
+                weiboRedis.set("weiboid_"+wid,wb)
+                weiboRedis.setex('overdue_'+uid+'_'+wid,10800,time.strftime("%Y-%m-%d %H:%M:%S"))
+            except:
+                return HttpResponse("network error. pls try again...")
+            return HttpResponse("转发成功,积分 +"+ponitOpe(uid,1,"转发微博,倍率: "))
+       else:
+            return HttpResponse("该微博用户积分不够,您不能转发.")
 
 def qzf(request):
     '''author: Mingyou(378868467@qq.com) 2012-06-21'''
@@ -232,34 +265,28 @@ def qzf(request):
             self.created_at = time.strftime("%Y-%m-%d %H:%M:%S",time.strptime(value['created_at'],"%a %b %d %H:%M:%S +0800 %Y"))
             self.reposts_count = value['reposts_count']
             self.comments_count = value['comments_count']
-        def check_zf(self,tags):
-            for t in tags:
-                if weiboRedis.sismember(str(t.encode("utf-8"))+"_weiboids",self.id):
-                    self.zf = True
-                    break
-                else:
-                    self.zf = False
+        def check_zf(self):
+            if adminRedis.hexists("shenheweiboguanggao",self.id):
+                self.zf = "sh"
+            elif weiboRedis.zrevrank("weiboid_order_time",self.id) != None:
+                self.zf = "zf"
+            else:
+                self.zf = False
             return self
     
     try:
         uid = str(request.session["uid"])
-        if int(time.time()) > int(loginRedis.lindex("token_"+uid,1)):
+        if int(time.time()) > int(loginRedis.hget("token_"+uid,"expires_in")):
             raise
-        access_token = loginRedis.lindex("token_"+uid,0)
-        expires_in = loginRedis.lindex("token_"+uid,1)
+        access_token = loginRedis.hget("token_"+uid,"access_token")
+        expires_in = loginRedis.hget("token_"+uid,"expires_in")
         client.set_access_token(access_token, expires_in) 
     except:
         
         return HttpResponseRedirect("/oauth/start")   #user no login, redirect to login page
     
-    tags = []
-    for i in client.tags(uid=uid):
-        for l in i.keys():
-            if l != "weight":
-                tags.append(i[l])
-    
     for w in client.get.statuses__user_timeline().statuses:
-        wbls.append(checkwb(w,uid).check_zf(tags))
+        wbls.append(checkwb(w,uid).check_zf())
     
     c = RequestContext(request,{
         "weibos":wbls,
@@ -271,14 +298,13 @@ def qzf(request):
 
 def choose_weibo_qzf(request):
     '''author: Mingyou(378868467@qq.com) 2012-06-21'''
-    
     wid = str(request.GET['id'])
     try:
         uid = str(request.session["uid"])
-        if int(time.time()) > int(loginRedis.lindex("token_"+uid,1)):
+        if int(time.time()) > int(loginRedis.hget("token_"+uid,"expires_in")):
             raise
-        access_token = loginRedis.lindex("token_"+uid,0)
-        expires_in = loginRedis.lindex("token_"+uid,1)
+        access_token = loginRedis.hget("token_"+uid,"access_token")
+        expires_in = loginRedis.hget("token_"+uid,"expires_in")
         client.set_access_token(access_token, expires_in) 
     except:
         
@@ -288,10 +314,19 @@ def choose_weibo_qzf(request):
     weibo['created_at'] = time.strftime("%Y-%m-%d %H:%M:%S",time.strptime(weibo['created_at'],"%a %b %d %H:%M:%S +0800 %Y"))
     
     if request.GET.has_key('zfsh'):
+        tags = request.GET.getlist("tags")
         if wid in adminRedis.hkeys("shenheweiboguanggao"):
             result = "您已提交过此审核,请耐心等待工作人员处理,谢谢."
+        
+        elif weiboRedis.zrevrank("weiboid_order_time",wid) != None:
+            result = "您已经求转发过此微博."
+               
         else:
             adminRedis.hset("shenheweiboguanggao",wid,time.strftime("%Y-%m-%d %H:%M:%S"))
+            weibo['tags'] = tags
+            weibo['reposts_count'] = 0
+            weibo['comments_count'] = 0
+            weiboRedis.set("weiboid_"+wid,weibo)
             result = "已成功提交审核,我们会尽快除理,谢谢."
         return HttpResponse(result)
     
@@ -299,7 +334,9 @@ def choose_weibo_qzf(request):
         weibo['tags'] = request.GET.getlist("tags")
         weibo['reposts_count'] = 0
         weibo['comments_count'] = 0
-        weiboRedis.set("weiboid_"+str(weibo['id']),weibo)
+        weiboRedis.set("weiboid_"+wid,weibo)
+        weiboRedis.zadd("weiboid_order_time",time.strftime("%Y%m%d%H%M%S"),wid)
+        weiboRedis.zadd("weiboid_order_hot",0,wid)
         
         for i in request.GET.getlist("tags"):
             weiboRedis.sadd(str(i.encode('utf-8'))+"_weiboids",weibo['id'])
@@ -310,7 +347,7 @@ def choose_weibo_qzf(request):
     comments_count = weibo['comments_count']
     created_at = weibo['created_at']
     tags = [];gg = False
-    if int(PRedis.hget('ponit_'+uid,'current_point')) >= 20 and "http:" in text:
+    if int(PRedis.hget('ponit_gg_'+uid,'current_point')) >= 1 and "http:" in text:
         gg = True
     for i in client.tags(uid=uid):
         for l in i.keys():
